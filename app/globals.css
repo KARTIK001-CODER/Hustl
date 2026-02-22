@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 48 44% 91%;
+  /* #F4F1DE */
+  --foreground: 0 1% 20%;
+  /* #333533 */
+  --card: 0 0% 100%;
+  --card-foreground: 0 1% 20%;
+  --primary: 194 85% 21%;
+  /* #084C61 - Deep Teal */
+  --secondary: 12 66% 58%;
+  /* #D96C50 - Terracotta */
+  --border: 0 0% 89%;
+  --input: 0 0% 89%;
+  --ring: 194 85% 21%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-secondary: hsl(var(--secondary));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Brand specific aliases */
+  --color-hustl-sandstone: #F4F1DE;
+  --color-hustl-teal: #084C61;
+  --color-hustl-terracotta: #D96C50;
+  --color-hustl-charcoal: #333533;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: hsl(var(--border));
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }

@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        UserRole
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  admin       Admin?
+  mentor      Mentor?
+  sessions    Session[]
+  student     Student?
+
+  @@index([email])
+  @@index([role])
+}
+
+model Student {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  university     String
+  major          String
+  graduationYear Int
+  skills         String[]
+  bio            String?
+  resumeUrl      String?
+
+  // Eligibility tracking fields
+  isEligible       Boolean   @default(false)
+  eligibilityScore Int       @default(0)
+  lastTestDate     DateTime?
+  testAttempts     Int       @default(0)
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  applications       Application[]
+  feedbackReceived   Feedback[]    @relation("StudentFeedback")
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testAttemptRecords TestAttempt[]
+
+  @@index([userId])
+  @@index([isEligible])
+  @@index([eligibilityScore])
+}
+
+model Mentor {
+  id              String     @id @default(cuid())
+  userId          String     @unique
+  company         String
+  expertise       String[]
+  yearsExperience Int
+  bio             String?
+  linkedinUrl     String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  feedbackGiven   Feedback[] @relation("MentorFeedback")
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  organization String
+  department   String
+  permissions  String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Internship {
+  id                  String        @id @default(cuid())
+  title               String
+  company             String
+  description         String
+  requirements        String[]
+  location            String
+  type                String
+  duration            String
+  stipend             String?
+  skills              String[]
+  isActive            Boolean       @default(true)
+  applicationDeadline DateTime?
+  startDate           DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  applications        Application[]
+  
+  // Link to specific eligibility test
+  testId              String?
+  test                Test?         @relation(fields: [testId], references: [id])
+
+  @@index([company])
+  @@index([isActive])
+}
+
+model Application {
+  id           String            @id @default(cuid())
+  studentId    String
+  internshipId String
+  status       ApplicationStatus @default(APPLIED)
+  coverLetter  String?
+  resumeUrl    String?
+  appliedAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  internship   Internship        @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  student      Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, internshipId])
+  @@index([studentId])
+  @@index([internshipId])
+  @@index([status])
+}
+
+model Feedback {
+  id          String            @id @default(cuid())
+  studentId   String
+  mentorId    String
+  rating      Int
+  comment     String
+  sentiment   FeedbackSentiment @default(NEUTRAL)
+  actionItems String[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  mentor      Mentor            @relation("MentorFeedback", fields: [mentorId], references: [id], onDelete: Cascade)
+  student     Student           @relation("StudentFeedback", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([mentorId])
+}
+
+model Test {
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  category     String
+  difficulty   TestDifficulty
+  duration     Int
+  passingScore Int
+  questions    Json
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  attempts     TestAttempt[]
+  internships  Internship[]
+
+  @@index([category])
+  @@index([difficulty])
+}
+
+model TestAttempt {
+  id                 String   @id @default(cuid())
+  studentId          String
+  testId             String
+  score              Int
+  maxScore           Int
+  percentage         Float
+  passed             Boolean
+  answers            Json
+  timeSpent          Int // in seconds
+  grantedEligibility Boolean  @default(false)
+  startedAt          DateTime @default(now())
+  completedAt        DateTime @updatedAt
+  student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  test               Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([testId])
+  @@index([passed])
+  @@index([completedAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+enum UserRole {
+  STUDENT
+  MENTOR
+  ADMIN
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  TECHNICAL
+  OFFER
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum FeedbackSentiment {
+  POSITIVE
+  NEUTRAL
+  CONSTRUCTIVE
+}
+
+enum TestDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
