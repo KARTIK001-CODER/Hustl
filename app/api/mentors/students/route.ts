@@ -4,6 +4,8 @@ import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/lib/responseHandler';
 import { HTTP_STATUS } from '@/config/constants';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
     try {
         const token = extractTokenFromHeader(request.headers.get('authorization'));

@@ -279,8 +279,11 @@ async function main() {
             studentId: student1.student!.id,
             testId: test1.id,
             score: 85,
+            maxScore: 100,
+            percentage: 85.0,
             passed: true,
             answers: [2, 0],
+            timeSpent: 1200,
         },
     });
 

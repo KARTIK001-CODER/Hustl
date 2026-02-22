@@ -10,6 +10,8 @@ import {
 import { successResponse, errorResponse, handleRouteError } from '@/lib/responseHandler';
 import { loginSchema } from '@/lib/validators/schemas';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();

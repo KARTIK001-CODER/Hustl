@@ -5,6 +5,8 @@ import { successResponse, errorResponse } from '@/lib/responseHandler';
 import { HTTP_STATUS } from '@/config/constants';
 import { UserRole } from '@prisma/client';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
     try {
         const token = extractTokenFromHeader(request.headers.get('authorization'));

@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { verifyToken, extractTokenFromHeader } from '@/lib/auth';
 import { successResponse, errorResponse, handleRouteError } from '@/lib/responseHandler';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
     try {
         // Get token from cookie or header

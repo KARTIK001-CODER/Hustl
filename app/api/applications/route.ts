@@ -5,6 +5,8 @@ import { successResponse, errorResponse, handleRouteError } from '@/lib/response
 import { createApplicationSchema } from '@/lib/validators/schemas';
 import { UserRole } from '@/lib/types';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
     try {
         const cookieToken = request.cookies.get('auth_token')?.value;

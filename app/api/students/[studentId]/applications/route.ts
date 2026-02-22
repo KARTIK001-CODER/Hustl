@@ -4,10 +4,13 @@ import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/lib/responseHandler';
 import { HTTP_STATUS } from '@/config/constants';
 
+export const runtime = 'nodejs';
+
 export async function GET(
     request: NextRequest,
-    { params }: { params: { studentId: string } }
+    { params }: { params: Promise<Record<string, string>> }
 ) {
+    const { studentId } = await params;
     try {
         const token = extractTokenFromHeader(request.headers.get('authorization'));
         if (!token) {
@@ -21,7 +24,7 @@ export async function GET(
 
         // Verify the student exists
         const student = await prisma.student.findUnique({
-            where: { id: params.studentId }
+            where: { id: studentId }
         });
 
         if (!student) {
@@ -30,7 +33,7 @@ export async function GET(
 
         // Fetch student's applications
         const applications = await prisma.application.findMany({
-            where: { studentId: params.studentId },
+            where: { studentId: studentId },
             include: {
                 internship: {
                     select: {

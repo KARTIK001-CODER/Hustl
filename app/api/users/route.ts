@@ -4,6 +4,8 @@ import { verifyToken, extractTokenFromHeader } from '@/lib/auth';
 import { paginatedResponse, errorResponse, handleRouteError } from '@/lib/responseHandler';
 import { UserRole } from '@/lib/types';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
     try {
         // Get token

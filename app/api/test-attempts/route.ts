@@ -6,6 +6,8 @@ import { HTTP_STATUS } from '@/config/constants';
 import { ELIGIBILITY_CONFIG } from '@/config/constants';
 import { UserRole } from '@/lib/types';
 
+export const runtime = 'nodejs';
+
 // GET - Get student's test attempts
 export async function GET(request: NextRequest) {
     try {

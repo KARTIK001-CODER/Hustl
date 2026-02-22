@@ -4,10 +4,12 @@ import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { successResponse, errorResponse, handleRouteError } from '@/lib/responseHandler';
 import { HTTP_STATUS } from '@/config/constants';
 
+export const runtime = 'nodejs';
+
 // GET - Fetch specific test details
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<Record<string, string>> }
 ) {
     const { id } = await params;
     try {

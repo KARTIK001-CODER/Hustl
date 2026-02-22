@@ -5,6 +5,8 @@ import { successResponse, errorResponse } from '@/lib/responseHandler';
 import { HTTP_STATUS } from '@/config/constants';
 import { ELIGIBILITY_CONFIG } from '@/config/constants';
 
+export const runtime = 'nodejs';
+
 // GET - Check student eligibility status
 export async function GET(request: NextRequest) {
     try {

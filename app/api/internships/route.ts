@@ -5,6 +5,8 @@ import { paginatedResponse, successResponse, errorResponse, handleRouteError } f
 import { createInternshipSchema } from '@/lib/validators/schemas';
 import { UserRole } from '@/lib/types';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
