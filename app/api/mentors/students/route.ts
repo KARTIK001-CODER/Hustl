@@ -31,59 +31,73 @@ export async function GET(request: NextRequest) {
             return errorResponse('Mentor not found', HTTP_STATUS.NOT_FOUND);
         }
 
-        // Get unique student IDs from feedback
-        const studentIds = [...new Set(mentor.feedbackGiven.map(f => f.studentId))];
-
-        // Fetch students with their application counts
-        const students = await Promise.all(
-            studentIds.map(async (studentId) => {
-                const student = await prisma.student.findUnique({
-                    where: { id: studentId },
+        // Fetch ALL students to allow "Global Discovery" as requested
+        const allStudents = await prisma.student.findMany({
+            include: {
+                user: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        email: true
+                    }
+                },
+                applications: {
                     include: {
-                        user: {
-                            select: {
-                                firstName: true,
-                                lastName: true,
-                                email: true
-                            }
-                        },
-                        applications: {
-                            select: {
-                                status: true
-                            }
+                        internship: {
+                            select: { company: true, title: true }
                         }
                     }
-                });
+                }
+            }
+        });
 
-                if (!student) return null;
+        // Fetch students the mentor has already interacted with (for "Priority" tagging later if needed)
+        const studentIdsFromFeedback = mentor.feedbackGiven.map(f => f.studentId);
 
-                const applicationCount = student.applications.length;
-                const appliedCount = student.applications.filter(a => a.status === 'APPLIED').length;
-                const interviewCount = student.applications.filter(a =>
-                    ['SCREENING', 'INTERVIEW', 'TECHNICAL'].includes(a.status)
-                ).length;
-                const offerCount = student.applications.filter(a =>
-                    ['OFFER', 'ACCEPTED'].includes(a.status)
-                ).length;
+        const students = allStudents.map(student => {
+            // Filter applications for THIS mentor's company
+            const companyApplications = student.applications.filter(
+                app => app.internship.company.toLowerCase() === mentor.company.toLowerCase()
+            );
 
-                return {
-                    id: student.id,
-                    user: {
-                        fullName: `${student.user.firstName} ${student.user.lastName}`,
-                        email: student.user.email
-                    },
-                    university: student.university,
-                    major: student.major,
-                    graduationYear: student.graduationYear,
-                    applicationCount,
-                    appliedCount,
-                    interviewCount,
-                    offerCount
-                };
-            })
-        );
+            // General stats (all companies)
+            const totalApplicationCount = student.applications.length;
 
-        return successResponse(students.filter(s => s !== null));
+            // Stats for this mentor's company
+            const appliedAtCompanyCount = companyApplications.length;
+            const interviewAtCompanyCount = companyApplications.filter(a =>
+                ['SCREENING', 'INTERVIEW', 'TECHNICAL'].includes(a.status)
+            ).length;
+
+            return {
+                id: student.id,
+                user: {
+                    fullName: `${student.user.firstName} ${student.user.lastName}`,
+                    email: student.user.email
+                },
+                university: student.university,
+                major: student.major,
+                graduationYear: student.graduationYear,
+                // Direct applications to mentor's company
+                companyApplications: companyApplications.map(app => ({
+                    id: app.id,
+                    title: app.internship.title,
+                    status: app.status,
+                    appliedAt: app.appliedAt
+                })),
+                // Flags for the UI
+                isYourApplicant: appliedAtCompanyCount > 0,
+                hasInteracted: studentIdsFromFeedback.includes(student.id),
+                // Statistics
+                totalApplicationCount,
+                applicationCount: appliedAtCompanyCount, // Keep same key for UI compatibility
+                appliedCount: appliedAtCompanyCount,
+                interviewCount: interviewAtCompanyCount,
+                offerCount: companyApplications.filter(a => ['OFFER', 'ACCEPTED'].includes(a.status)).length
+            };
+        });
+
+        return successResponse(students);
     } catch (error) {
         console.error('Failed to fetch students:', error);
         return errorResponse('Internal server error', HTTP_STATUS.INTERNAL_SERVER_ERROR);

@@ -34,18 +34,35 @@ export async function GET(request: NextRequest) {
             return errorResponse('Mentor not found', HTTP_STATUS.NOT_FOUND);
         }
 
-        // Calculate stats
-        const uniqueStudents = new Set(mentor.feedbackGiven.map(f => f.studentId));
+        // Get applications for the mentor's company
+        const internships = await prisma.internship.findMany({
+            where: {
+                company: {
+                    equals: mentor.company,
+                    mode: 'insensitive'
+                }
+            },
+            include: {
+                applications: {
+                    select: { id: true, studentId: true }
+                }
+            }
+        });
+
+        const applicantIds = new Set(internships.flatMap(i => i.applications.map(a => a.studentId)));
+        const uniqueFeedbackStudents = new Set(mentor.feedbackGiven.map(f => f.studentId));
+        const unionStudents = new Set([...Array.from(uniqueFeedbackStudents), ...Array.from(applicantIds)]);
         const totalFeedback = mentor.feedbackGiven.length;
         const averageRating = totalFeedback > 0
             ? mentor.feedbackGiven.reduce((sum, f) => sum + f.rating, 0) / totalFeedback
             : 0;
 
         return successResponse({
-            activeStudents: uniqueStudents.size,
+            activeStudents: unionStudents.size,
             feedbackGiven: totalFeedback,
             averageRating: Number(averageRating.toFixed(1)),
-            impactScore: uniqueStudents.size * 10 + totalFeedback * 5
+            impactScore: unionStudents.size * 10 + totalFeedback * 5,
+            pendingApplications: applicantIds.size // Simplified: treat all applicants as needing review
         });
     } catch (error) {
         console.error('Failed to fetch mentor stats:', error);

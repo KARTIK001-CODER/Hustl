@@ -221,7 +221,7 @@ export default function MentorDashboard() {
                                     <p className="text-sm text-slate-600">See recent student applications</p>
                                 </div>
                                 <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-                                    3 pending
+                                    {(stats as any).pendingApplications || 0} pending
                                 </span>
                             </Link>
                         </div>

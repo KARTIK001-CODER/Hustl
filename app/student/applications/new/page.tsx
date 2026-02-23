@@ -19,7 +19,7 @@ function ApplicationFormContent() {
 
     useEffect(() => {
         if (!internshipId) {
-            router.push('/internships');
+            router.push('/student/internships');
             return;
         }
 
@@ -29,20 +29,18 @@ function ApplicationFormContent() {
             return;
         }
 
-        // Fetch internship details (from list since individual endpoint might be missing)
+        // Fetch internship details directly
         const fetchInternshipDetails = async () => {
             try {
-                const response = await fetch('/api/internships');
+                const response = await fetch(`/api/internships/${internshipId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const data = await response.json();
                 if (data.success) {
-                    const found = data.data.find((i: any) => i.id === internshipId);
-                    if (found) {
-                        setInternship(found);
-                    } else {
-                        // Handle not found
-                        console.error('Internship not found');
-                        router.push('/internships');
-                    }
+                    setInternship(data.data);
+                } else {
+                    console.error('Internship not found');
+                    router.push('/student/internships');
                 }
             } catch (error) {
                 console.error('Error fetching details:', error);

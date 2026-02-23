@@ -85,7 +85,7 @@ export default function InternshipsPage() {
             router.push(`/student/take-test?testId=${internship.test.id}`);
         } else {
             // Apply logic (existing)
-            router.push(`/applications/new?internshipId=${internship.id}`);
+            router.push(`/student/applications/new?internshipId=${internship.id}`);
         }
     };
 
