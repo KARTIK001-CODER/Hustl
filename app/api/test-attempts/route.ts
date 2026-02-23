@@ -179,8 +179,17 @@ function calculateScore(answers: any, questions: any): { score: number; maxScore
     const maxScore = questions.length * 10; // 10 points per question
 
     questions.forEach((question: any, index: number) => {
-        const userAnswer = answers[index] || answers[question.id];
-        if (userAnswer === question.correctAnswer) {
+        const userAnswer = answers[index] || answers[question.id] || answers[String(index)];
+
+        // Handle both string answers and numeric indices
+        let isCorrect = false;
+        if (typeof question.correctAnswer === 'number') {
+            isCorrect = userAnswer === question.options[question.correctAnswer];
+        } else {
+            isCorrect = userAnswer === question.correctAnswer;
+        }
+
+        if (isCorrect) {
             score += 10;
         }
     });

@@ -82,7 +82,7 @@ export default function InternshipsPage() {
     const handleApplyClick = (internship: Internship) => {
         if (internship.test && !passedTests.has(internship.test.id)) {
             // Redirect to test
-            router.push(`/take-test?testId=${internship.test.id}`);
+            router.push(`/student/take-test?testId=${internship.test.id}`);
         } else {
             // Apply logic (existing)
             router.push(`/applications/new?internshipId=${internship.id}`);

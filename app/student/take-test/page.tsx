@@ -164,7 +164,7 @@ function TakeTestContent() {
                                     {index + 1}
                                 </span>
                                 <div className="flex-1">
-                                    <h3 className="text-2xl font-black text-hustl-charcoal leading-tight tracking-tight">{question.text}</h3>
+                                    <h3 className="text-2xl font-black text-hustl-charcoal leading-tight tracking-tight">{question.text || question.question}</h3>
                                 </div>
                             </div>
 
@@ -172,7 +172,7 @@ function TakeTestContent() {
                                 {question.options && question.options.map((option: string, optIndex: number) => (
                                     <label
                                         key={optIndex}
-                                        className={`flex items-center p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${answers[question.id] === option
+                                        className={`flex items-center p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${answers[question.id || index] === option
                                             ? 'border-hustl-teal bg-hustl-teal/5 shadow-inner'
                                             : 'border-slate-50 hover:border-hustl-teal/20 hover:bg-slate-50'
                                             }`}
@@ -180,19 +180,19 @@ function TakeTestContent() {
                                         <div className="relative flex items-center justify-center w-6 h-6 mr-4">
                                             <input
                                                 type="radio"
-                                                name={`question-${question.id}`}
+                                                name={`question-${question.id || index}`}
                                                 value={option}
-                                                checked={answers[question.id] === option}
-                                                onChange={() => handleAnswerChange(question.id, option)}
+                                                checked={answers[question.id || index] === option}
+                                                onChange={() => handleAnswerChange(question.id || index.toString(), option)}
                                                 className="absolute opacity-0 w-full h-full cursor-pointer"
                                             />
-                                            <div className={`w-6 h-6 rounded-full border-2 transition-all ${answers[question.id] === option ? 'border-hustl-teal bg-hustl-teal' : 'border-slate-200 bg-white'}`}>
-                                                {answers[question.id] === option && (
+                                            <div className={`w-6 h-6 rounded-full border-2 transition-all ${answers[question.id || index] === option ? 'border-hustl-teal bg-hustl-teal' : 'border-slate-200 bg-white'}`}>
+                                                {answers[question.id || index] === option && (
                                                     <div className="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                                                 )}
                                             </div>
                                         </div>
-                                        <span className={`text-lg font-bold tracking-tight transition-colors ${answers[question.id] === option ? 'text-hustl-teal' : 'text-slate-600'}`}>
+                                        <span className={`text-lg font-bold tracking-tight transition-colors ${answers[question.id || index] === option ? 'text-hustl-teal' : 'text-slate-600'}`}>
                                             {option}
                                         </span>
                                     </label>

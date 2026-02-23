@@ -127,7 +127,7 @@ export default function EligibilityStatus() {
 
                     {eligibility.canTakeTest ? (
                         <Link
-                            href="/take-test"
+                            href="/student/internships"
                             className="block w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center font-semibold rounded-xl hover:shadow-lg transition"
                         >
                             {eligibility.testAttempts === 0 ? 'Take Eligibility Test' : 'Retake Test'}
